@@ -2,7 +2,7 @@ import { GraphQLServer } from 'graphql-yoga';
 
 // Demo user data
 let users = [{id: '1', name: 'Shunze', email:'shunze@gmail.com',age: 25}, {id: '2', name: 'Sarah', email:'sarah@gmail.com'}, {id: '3', name: 'Mike', email:'mike@gmail.com',age: 29}];
-let posts = [{id: '1', title: 'Title 1', body:'Body 1',published: false}, {id: '2', title: 'Title 2', body:'Body 2', published: true}, {id: '3', title: 'Title 3', body:'Body 3',published: false}]
+let posts = [{id: '1', title: 'Title 1', body:'Body 1',published: false, author:'1'}, {id: '2', title: 'Title 2', body:'Body 2', published: true, author:'2'}, {id: '3', title: 'Title 3', body:'Body 3',published: false, author:'3'}]
 // Type definitions (schema)
 const typeDefs = `
 	type Query {	
@@ -17,6 +17,7 @@ const typeDefs = `
 		name: String!
 		email: String!
 		age: Int
+		posts: [Post!]!
 	}
 
 	type Post {
@@ -24,6 +25,7 @@ const typeDefs = `
 		title: String!
 		body:String!
 		published:Boolean!
+		author: User!
 	}
 `;
 // Resolvers
@@ -56,6 +58,18 @@ const resolvers = {
             published: true
          };
       }
+   },
+   Post: {
+   	// Reference Post to User
+   	author(parent, args, ctx, info){
+   		return users.find(el => el.id === parent.author)
+   	}
+   },
+   User: {
+   	// Reference User to Post
+   	posts(parent, args,ctx,info){
+   		return posts.filter(el => el.author ===parent.id)
+   	}
    }
 };
 
