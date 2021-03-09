@@ -32,6 +32,9 @@ const typeDefs = `
 		createUser(data: CreateUserInput): User!
 		createPost(data: createPostInput):Post!
 		createComment(data: createCommentInput): Comment!
+		deleteUser(id:ID!): User!
+		deletePost(id:ID!): Post!
+		deleteComment(id:ID!): Comment!
 	}
 
 	input CreateUserInput {
@@ -123,6 +126,26 @@ const resolvers = {
 			};
 			users.push(user);
 			return user;
+		},
+		deleteUser(parent, args, ctx, info) {
+			const user = users.find((user) => user.id === args.id);
+			if (!user) throw new Error('User not found');
+			users = users.filter((el) => el.id !== user.id);
+			posts = posts.filter((el) => el.author !== user.id);
+			comments = comments.filter((el) => el.author !== user.id);
+			return user;
+		},
+		deletePost(parent, args, ctx, info) {
+			const post = posts.find((el) => el.id === args.id);
+			if (!post) throw new Error("The post doesn't exist");
+			posts = posts.filter((el) => el.id !== post.id);
+			comments = comments.filter((el) => el.post !== post.id);
+			return post;
+		},
+		deleteComment(parent, args, ctx, info) {
+			const comment = comments.find((el) => el.id === args.id);
+			if (!comment) throw new Error("The comment doesn't exist");
+			return comment;
 		},
 		createPost(parent, args, ctx, info) {
 			const user = users.find((user) => user.id === args.data.author);
